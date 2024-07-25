@@ -1,0 +1,2 @@
+Order Number,Year,Month,Day,Product Number,Product Name,Count,Extra Col1,Extra Col2,Empty Column,error
+1001,2017,12,12,P-10002,Iceberg lettuce,500..0,Lorem,Ipsum,,unmatched regex

@@ -1,0 +1,51 @@
+transformation:
+  - rule_type: padding_zero
+    column: "Year"
+    length: 4
+  
+  - rule_type: padding_zero
+    column: "Month"
+    length: 2
+  
+  - rule_type: padding_zero
+    column: "Day"
+    length: 2
+
+  - rule_type: format_number
+    column: "Count"
+    format: "9,990.09"
+
+  - rule_type: rename
+    from: "Order Number"
+    to: "OrderID"
+    output_type: "Integer"
+
+  - rule_type: concatenate
+    column: "OrderDate"
+    sourceColumns: ["Year", "Month", "Day"]
+    separator: "-"
+    output_type: "Date"
+
+  - rule_type: rename
+    from: "Product Number"
+    to: "ProductId"
+    output_type: "String"
+
+  - rule_type: rename
+    from: "Product Name"
+    to: "ProductName"
+    output_type: "String"
+    transform: "proper_case"
+
+  - rule_type: rename
+    from: "Count"
+    to: "Quantity"
+    output_type: "BigDecimal"
+
+  - rule_type: add
+    column: "Unit"
+    value: "kg"
+    output_type: "String"
+
+  - rule_type: keep
+    columns: ["OrderID", "OrderDate", "ProductId", "ProductName", "Quantity", "Unit"]

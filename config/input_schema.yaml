@@ -1,0 +1,19 @@
+inputSchema: 
+  - column: Order Number
+    format: '\d+'
+  - column: Year
+    format: '\d+'
+  - column: Month
+    format: '\d+'
+  - column: Day
+    format: '\d+'
+  - column: Product Number
+    format: '[A-Z0-9]+'
+  - column: Product Name
+    format: '[A-Z]+'
+  - column: Count
+    format: '^\d{1,3}(,\d{3})*(\.\d+)?$'
+  - column: Extra Col1
+    format: '.*'
+  - column: Extra Col2
+    format: '.*'
