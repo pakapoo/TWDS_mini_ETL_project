@@ -1,19 +1,15 @@
 transformation:
-  - rule_type: padding_zero
+  - rule_type: pad_zero
     column: "Year"
     length: 4
   
-  - rule_type: padding_zero
+  - rule_type: pad_zero
     column: "Month"
     length: 2
   
-  - rule_type: padding_zero
+  - rule_type: pad_zero
     column: "Day"
     length: 2
-
-  - rule_type: format_number
-    column: "Count"
-    format: "9,990.09"
 
   - rule_type: rename
     from: "Order Number"

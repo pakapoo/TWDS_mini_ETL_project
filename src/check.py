@@ -23,7 +23,7 @@ class typeChecker:
         """
         self.df = self.df.withColumn('error', when(~col(column).rlike(regex), 1).otherwise(col('error')))
         temp_error_df = self.df.filter(~col(column).rlike(regex))
-        temp_error_df = temp_error_df.withColumn('error', lit("unmatched regex"))
+        temp_error_df = temp_error_df.withColumn('error', lit("unmatched regex - "+column))
         if self.invalid_df is None:
             self.invalid_df = temp_error_df
         else:

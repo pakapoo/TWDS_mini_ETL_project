@@ -22,15 +22,15 @@ dq_report = config['path']['report']
 
 # Extract
 df = extract.readcsv(data_souce)
-print(df.show(), df.printSchema())
+print(df.show(20, False), df.printSchema())
 
-# Data validation
+# Data Quality Check
 typeChecker = check.typeChecker(df)
 typeChecker.checker(input_schema)
 typeChecker.logger(dq_report)
-print(typeChecker.valid_df.show(), typeChecker.invalid_df.show())
+print(typeChecker.valid_df.show(20, False), typeChecker.invalid_df.show(20, False))
 
-# Transform data
+# Transform
 transformer = transform.transformer(typeChecker.valid_df)
 transformer.transform(transformation_rules)
-print(transformer.df.show(), transformer.df.printSchema())
+print(transformer.df.show(20, False), transformer.df.printSchema())

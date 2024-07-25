@@ -1,32 +1,45 @@
 ## About
 This is the take home project of Taiwan Data Science Meetup (TWDS) mentorship program.
 
-The data is extracted from a csv file (pseudo-regex or number parsing format), transformed with **Python**. The project is packed and delivered with **Docker**.
+The data is extracted from csv files (pseudo-regex or number parsing format) and stored to MySQL database. The project is packed and delivered with **Docker**.
 
-Pipeline archetecture
+### Pipeline archetecture
 Amazon S3 -> Python -> MySQL
-### Todo: Diagram
 
 ## Setup
 1. Unzip the code
-2. Place source data file(s) in `data/input` folder
+2. Place input csv file(s) in `data/input`
 3. Configure input schema in `config/input_schema`
 * column: the column name
 * format: regular expression for data quality checking
-4. Configure transformation requirements in `config/transformation_rules`. There are several rule types (rule_type) available now:
-* padding_zero: pad zeros according to the given length
-    * column: column name
-    * length: length
-* format_number: format numeric columns according to Spark SQL number pattern
-    * column: column name
-    * format: [Spark SQL - Number Pattern](https://spark.apache.org/docs/3.3.1/sql-ref-number-pattern.html)
-* rename: rename a column
-    * from: original name
-    * to: new name
-* concatenate
-    * 
-* add
-* keep
+4. Configure external DSL for transformation steps in `config/transform_rules.yaml`. There are several rules (rule_type) available now:
+
+    **Create new column**
+    * rename: create column from renaming a column
+        * from: source column
+        * to: target column
+        * output_type: target column type
+    * concatenate: create column from concatenating columns
+        * column: column
+        * sourceColumns: list of columns to be concatenated
+        * separator: separator when joining the sourceColumns
+        * output_type: target column type
+    * add: create column with a fixed value
+        * column: column
+        * value: fix value
+        * output_type: target column type
+
+    **Format column**
+    * pad_zero: pad zeros with the given length
+        * column: column (String)
+        * length: length
+    * format_number: format a numeric column
+        * column: column
+        * format: [Spark SQL - Number Pattern](https://spark.apache.org/docs/3.3.1/sql-ref-number-pattern.html)
+
+    **Dataframe operations**
+    * keep
+        * columns: list of columns to be kept
 5. Run the below command(s) to start a Python environment
 ```bash
 docker-compose up
@@ -89,6 +102,12 @@ docker-compose up
 4. Set pre-checking rules with a configuration file
 
 5. Set post-checking validation rules
+
+## Assumption
+* Each output column can at most appear once in `config/transform_rules.yaml`
+* Regular expressions
+    * Product Number: allow dashes (-)
+    * Product Name: allow spaces
 
 ## Future
 * Store output into a database that can store JVM type data
