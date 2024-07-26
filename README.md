@@ -1,50 +1,90 @@
 ## About
-Take home project for 2024 Taiwan Data Science Meetup (TWDS) mentorship program. The project demonstated building an ETL (Extract, Transform, Load) pipeline, orchestrated with Airflow, and delivered as Docker compose file. 
+Take home project for 2024 Taiwan Data Science Meetup (TWDS) mentorship program. The project demonstates how to build an ETL (Extract, Transform, Load) pipeline, orchestrated with Airflow, and delivered as Docker compose file. 
 
 Data is provided as csv files (pseudo-regex or number parsing format), processed with Spark (PySpark), and stored to MySQL database.
 
-**Pipeline archetecture**
 
-File system -> Python runtime on Linux (pyspark) -> MySQL
+**Pipeline archetecture**
+![alt text](misc/pipeline.png)
 
 ## Scenario
 We are implementing a small system for (row-wise) wrangling of text data. The typical use case is taking a delimited data file from a customer and massaging it to fit with a standardized schema by applying a sequence of column transforms.
 
 ## Setup
-1. CLone the repo to your desktop.
+1. Clone the repo to your desktop.
 2. Place the input csv file(s) in `data/input`. There are already one available. Feel free to put additional csv files or modify the existing one.
 3. For data quality checking, configure input schema in `config/input_schema`. The application will check the real data against the regular expression provided for each column.
 * column: the column name
 * format: regular expression for the expected value
 4. Configure external DSL for the transformation steps in `config/transform_rules.yaml`. There are several rules (rule_type) available now:
 
-    #### Create column
+    #### Create column: each output column has to be configured exactly once
     * rename: create column from renaming a column
         * from: source column
         * to: target column
         * output_type: target column type
         * transform (optional): additional operation, e.g. proper case
+        ```yaml
+        # Proper case Product Name , rename it → ProductName and parse as String
+        - rule_type: rename
+          from: "Product Name"
+          to: "ProductName"
+          output_type: "String"
+          transform: "proper_case"
+        ```
     * concatenate: create column from concatenating columns
         * column: column
         * sourceColumns: list of columns to be concatenated
         * separator: separator when joining the sourceColumns
         * output_type: target column type
+        ```yaml
+        # Add a new column, concatenating Year, Month, Day → OrderDate and parse as DateTime
+        - rule_type: concatenate
+          column: "OrderDate"
+          sourceColumns: ["Year", "Month", "Day"]
+          separator: "-"
+          output_type: "Date"
+        ```
     * add: create column with a fixed value
         * column: column
         * value: fix value
         * output_type: target column type
+        ```yaml
+        # Add a new column with the fixed value "kg" → Unit and parse as String
+        - rule_type: add
+          column: "Unit"
+          value: "kg"
+          output_type: "String"
+        ```
 
     #### Format column
     * pad_zero: pad zeros with the given length
         * column: column (String)
         * length: length
+    ```yaml
+    # pad zeros for Month, e.g. 6 -> 06
+    - rule_type: pad_zero
+      column: "Month"
+      length: 2
+    ```
     * format_number: format a numeric column
         * column: column
         * format: [Spark SQL - Number Pattern](https://spark.apache.org/docs/3.3.1/sql-ref-number-pattern.html)
+    ```yaml
+    # format String column with numeric expression
+    - rule_type: format_number
+      column: "Count"
+      format: "9,990.09"
+    ```
 
     #### Dataframe operations
     * keep
         * columns: list of columns to be kept
+    ```yaml
+    # Keep only our 6 reference columns
+    - rule_type: keep
+      columns: ["OrderID", "OrderDate", "ProductId", "ProductName", "Quantity", "Unit"]
+    ```
 
 ## Installation
 Run the below command(s) to start a Python environment and MySQL database. The -d parameter will allow the application to run in the background (detach mode) of the same session.
@@ -107,8 +147,8 @@ You may find the ETL result at `data/output` and the report for logging invalid 
     * Product Name: allow spaces
 
 ## Todo
-* Output to a database that can store JVM type data
-* Leverage cloud technologies such as S3 for placing input data
+* Leverage cloud platform such as S3 for placing input data
+* Simulate large amount of data and seek for high efficiency
 
 ## Reference
 1. Wang, Y., & Zhang, Y. (2017). A Design of ETL Pipeline for Data Warehouse. In *2017 7th International Workshop on Computer Science and Engineering* (pp. 41-45). IEEE. [Link](http://www.wcse.org/WCSE_2017/041.pdf)
