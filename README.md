@@ -4,7 +4,7 @@ Take home project for 2024 Taiwan Data Science Meetup (TWDS) mentorship program.
 Data is provided as csv files (pseudo-regex or number parsing format), processed with Spark (PySpark), and stored to MySQL database.
 
 **Pipeline archetecture**
-![alt text](misc/pipeline.png)
+![alt text](misc/datapipeline.png)
 
 ## Scenario
 We are implementing a small system for (row-wise) wrangling of text data. The typical use case is taking a delimited data file from a customer and massaging it to fit with a standardized schema by applying a sequence of column transforms.
