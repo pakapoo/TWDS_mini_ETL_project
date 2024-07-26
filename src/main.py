@@ -32,5 +32,5 @@ print(typeChecker.valid_df.show(20, False), typeChecker.invalid_df.show(20, Fals
 
 # Transform
 transformer = transform.transformer(typeChecker.valid_df)
-transformer.transform(transformation_rules)
+transformer.transform(transformation_rules, ETL_output)
 print(transformer.df.show(20, False), transformer.df.printSchema())

@@ -1,24 +1,29 @@
 ## About
-This is the take home project of Taiwan Data Science Meetup (TWDS) mentorship program.
+Take home project for 2024 Taiwan Data Science Meetup (TWDS) mentorship program. The project demonstated building an ETL (Extract, Transform, Load) pipeline, orchestrated with Airflow, and delivered as Docker compose file. 
 
-The data is extracted from csv files (pseudo-regex or number parsing format) and stored to MySQL database. The project is packed and delivered with **Docker**.
+Data is provided as csv files (pseudo-regex or number parsing format), processed with Spark (PySpark), and stored to MySQL database.
 
-### Pipeline archetecture
-Amazon S3 -> Python -> MySQL
+**Pipeline archetecture**
+
+File system -> Python runtime on Linux (pyspark) -> MySQL
+
+## Scenario
+We are implementing a small system for (row-wise) wrangling of text data. The typical use case is taking a delimited data file from a customer and massaging it to fit with a standardized schema by applying a sequence of column transforms.
 
 ## Setup
-1. Unzip the code
-2. Place input csv file(s) in `data/input`
-3. Configure input schema in `config/input_schema`
+1. CLone the repo to your desktop.
+2. Place the input csv file(s) in `data/input`. There are already one available. Feel free to put additional csv files or modify the existing one.
+3. For data quality checking, configure input schema in `config/input_schema`. The application will check the real data against the regular expression provided for each column.
 * column: the column name
-* format: regular expression for data quality checking
-4. Configure external DSL for transformation steps in `config/transform_rules.yaml`. There are several rules (rule_type) available now:
+* format: regular expression for the expected value
+4. Configure external DSL for the transformation steps in `config/transform_rules.yaml`. There are several rules (rule_type) available now:
 
-    **Create new column**
+    #### Create column
     * rename: create column from renaming a column
         * from: source column
         * to: target column
         * output_type: target column type
+        * transform (optional): additional operation, e.g. proper case
     * concatenate: create column from concatenating columns
         * column: column
         * sourceColumns: list of columns to be concatenated
@@ -29,7 +34,7 @@ Amazon S3 -> Python -> MySQL
         * value: fix value
         * output_type: target column type
 
-    **Format column**
+    #### Format column
     * pad_zero: pad zeros with the given length
         * column: column (String)
         * length: length
@@ -37,17 +42,24 @@ Amazon S3 -> Python -> MySQL
         * column: column
         * format: [Spark SQL - Number Pattern](https://spark.apache.org/docs/3.3.1/sql-ref-number-pattern.html)
 
-    **Dataframe operations**
+    #### Dataframe operations
     * keep
         * columns: list of columns to be kept
-5. Run the below command(s) to start a Python environment
-```bash
-docker-compose up
-```
-6. You may find the ETL result at `data/output` and report for logging invalid data at `reports`
 
-## Data
-### Input
+## Installation
+Run the below command(s) to start a Python environment and MySQL database. The -d parameter will allow the application to run in the background (detach mode) of the same session.
+```bash
+docker-compose up -d
+```
+
+## Result
+You may find the ETL result at `data/output` and the report for logging invalid data at `reports`. The result will also be stored in MySQL database, which can be checked with the following command(s):
+```bash
+
+```
+
+## Data Schema
+**Input (csv)**
 | Column Name     | String Format |
 |-----------------|---------------|
 | Order Number    | d+            |
@@ -61,8 +73,7 @@ docker-compose up
 | Extra Col2      | --            |
 
 
-### Output
-
+**Output**
 | Column Name | Data Type    | Source            | Action   |
 |-------------|--------------|-------------------|----------|
 | OrderID     | Integer      | Order Number      | Rename   |
@@ -75,42 +86,28 @@ docker-compose up
 ## Requirements
 * The transformations should be configurable with an external DSL (like a configuration file).
 
-    -> To make the transformations configurable, utilize an external YAML file for easy configuration and modification.
+    -> An external YAML file for easy configuration without writing code
 
 * The functionality should be implemented as a library, without (significant) external dependencies.
 
-    -> Implement the functionality as a standalone library, minimizing the reliance on external dependencies.
+    -> Implement each functionality as a standalone library, including data extraction, data quality checking, data transformation and data loading
 
 * Invalid rows should be collected, with errors describing why they are invalid (logging them is fine for now).
 
-    -> Collect invalid rows and provide error descriptions by implementing type checking and reporting.
+    -> Collect invalid rows and provide error descriptions by implementing type checking and reporting
 
 * The data tables can have a very large number of rows.
 
-    -> Consider implementing additional data simulation functions to efficiently handle large data tables.
+    -> Consider implementing additional data simulation functions to efficiently handle large data tables
 
-
-## Implementations
-1. Set up a Python environment and JVM-style DB with Docker compose
-    -> Use Docker Compose for easy set-up for users
-
-2. Develop Python script (library) to do the transformation
-
-3. Develop Python script (library) to simulate data
-    -> As the requirements mentioned that the data can be large
-
-4. Set pre-checking rules with a configuration file
-
-5. Set post-checking validation rules
-
-## Assumption
-* Each output column can at most appear once in `config/transform_rules.yaml`
-* Regular expressions
+## Assumptions
+* Each output column should be configured exactly once with the 'Create column' rule in `config/transform_rules.yaml`. You can find more details about the 'Create column' rule in the [previous section](#create-column).
+* Regular expressions are updated according to the sample data
     * Product Number: allow dashes (-)
     * Product Name: allow spaces
 
-## Future
-* Store output into a database that can store JVM type data
+## Todo
+* Output to a database that can store JVM type data
 * Leverage cloud technologies such as S3 for placing input data
 
 ## Reference

@@ -51,5 +51,7 @@ class typeChecker:
         Log the results to a file.
         """
         error_file_nm = "error_{date}.csv".format(date=datetime.now().strftime("%Y%m%d"))
-        self.invalid_df.toPandas().to_csv(os.path.join(report, error_file_nm), index=False)
+        self.invalid_df.toPandas().to_csv(os.path.join(report, error_file_nm), 
+                                          header=True,
+                                          index=False)
         return None

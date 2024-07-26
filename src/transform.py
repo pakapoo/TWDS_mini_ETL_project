@@ -1,5 +1,6 @@
 import yaml
-from pyspark.sql.functions import lit, concat_ws, col, lpad, to_number 
+from pyspark.sql.functions import lit, concat_ws, col, lpad, to_number, regexp_replace
+import os
 
 class transformer:
     def __init__(self, df):
@@ -22,7 +23,7 @@ class transformer:
         elif data_type == 'String':
             self.df = self.df.withColumn(column, self.df[column].cast("String"))
         elif data_type == 'BigDecimal':
-            self.df = self.df.withColumn(column, self.df[column].cast("Decimal(38,2)"))
+            self.df = self.df.withColumn(column, regexp_replace(self.df[column], ',', '').cast("Decimal(38,2)"))
         elif data_type == 'Date':
             self.df = self.df.withColumn(column, self.df[column].cast("Date"))
         else:
@@ -71,28 +72,38 @@ class transformer:
         """
         self.df = self.df.select(columns)
 
-    def transform(self, rules):
+    def export(self, output_path):
+            """
+            Log the results to a file.
+            """
+            self.df.toPandas().to_csv(os.path.join(output_path, "results.csv"), 
+                                              header=True,
+                                              index=False)
+            return None
+
+    def transform(self, rules, output_path):
         """
         Process all rules.
         """
         rules = self.parseRules(rules)['transformation']
         for rule in rules:
             _rule_type = rule['rule_type']
-            if _rule_type == 'pad_zero':
-                self.paddingZero(rule['column'], rule['length'])
-            elif _rule_type == 'format_number':
-                self.formatNumber(rule['column'], rule['format'])
-            elif _rule_type == 'rename':
+            if _rule_type == 'rename':
                 self.rename(rule['from'], rule['to'])
                 self.typeCast(rule['to'], rule['output_type'])
                 if "transform" in rule:
                     self.extraTransform(rule['to'], rule['transform'])
-            elif _rule_type == 'add':
-                self.addConstantCol(rule['column'], rule['value'])
-                self.typeCast(rule['column'], rule['output_type'])
             elif _rule_type == 'concatenate':
                 self.addConcatCol(rule['column'], rule['sourceColumns'], rule['separator'])
                 self.typeCast(rule['column'], rule['output_type'])
+            elif _rule_type == 'add':
+                self.addConstantCol(rule['column'], rule['value'])
+                self.typeCast(rule['column'], rule['output_type'])
+            elif _rule_type == 'pad_zero':
+                self.paddingZero(rule['column'], rule['length'])
+            elif _rule_type == 'format_number':
+                self.formatNumber(rule['column'], rule['format'])
             elif _rule_type == 'keep':
                 self.keepCols(rule['columns'])
+        self.export(output_path)
 
