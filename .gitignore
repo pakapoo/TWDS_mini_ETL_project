@@ -4,3 +4,13 @@ __pycache__/
 
 # Editor directories and files
 .DS_Store
+
+# Output
+output/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# testing
+notes.txt
+Untitled.ipynb

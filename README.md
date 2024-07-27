@@ -88,13 +88,14 @@ We are implementing a small system for (row-wise) wrangling of text data. The ty
 ## Installation
 Run the below command(s) to start a Python environment and MySQL database. The -d parameter will allow the application to run in the background (detach mode) of the same session.
 ```bash
-docker-compose up -d
+docker-compose up
 ```
 
 ## Result
-You may find the ETL result at `data/output` and the report for logging invalid data at `reports`. The result will also be stored in MySQL database, which can be checked with the following command(s):
+You may find the ETL result at `data/output` and the report for logging invalid data at `reports`. The result will also be stored in MySQL database, which can be checked with the following command(s) in your terminal:
 ```bash
-
+docker exec -it mysql_container sh
+mysql -h 127.0.0.1 -u root -p
 ```
 
 ## Data Schema
@@ -151,3 +152,4 @@ You may find the ETL result at `data/output` and the report for logging invalid 
 
 ## Reference
 1. Wang, Y., & Zhang, Y. (2017). A Design of ETL Pipeline for Data Warehouse. In *2017 7th International Workshop on Computer Science and Engineering* (pp. 41-45). IEEE. [Link](http://www.wcse.org/WCSE_2017/041.pdf)
+https://blog.csdn.net/weixin_52785140/article/details/130774975

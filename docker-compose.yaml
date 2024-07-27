@@ -1,0 +1,74 @@
+version: '3.8'
+services:
+  # spark-master:
+  #   image: docker.io/bitnami/spark:latest
+  #   environment:
+  #     - SPARK_MODE=master
+  #     - SPARK_RPC_AUTHENTICATION_ENABLED=no
+  #     - SPARK_RPC_ENCRYPTION_ENABLED=no
+  #     - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+  #     - SPARK_SSL_ENABLED=no
+  #     - SPARK_USER=spark
+  #   ports:
+  #     - "7077:7077"
+  #     - "8080:8080"
+  #   depends_on:
+  #     - mysql
+  #   networks:
+  #     - spark_network
+
+  # spark-worker-1:
+  #   image: docker.io/bitnami/spark:latest
+  #   environment:
+  #     - SPARK_MODE=worker
+  #     - SPARK_MASTER_URL=spark://spark-master:7077
+  #     - SPARK_WORKER_MEMORY=1G
+  #     - SPARK_WORKER_CORES=1
+  #     - SPARK_RPC_AUTHENTICATION_ENABLED=no
+  #     - SPARK_RPC_ENCRYPTION_ENABLED=no
+  #     - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+  #     - SPARK_SSL_ENABLED=no
+  #     - SPARK_USER=spark
+  #   volumes:
+  #     - ./src:/app
+  #     - ./data/input:/input
+  #     - ./config:/config
+  #   depends_on:
+  #     - spark-master
+  #     - mysql
+  #   networks:
+  #     - spark_network
+
+  # spark-notebook:
+  #   image: jupyter/pyspark-notebook
+  #   ports:
+  #     - "8888:8888"
+  #   volumes:
+  #     - ./spark:/home/jovyan/work/spark
+  #     - ./data/input:/home/jovyan/work/data/input
+  #     - ./data/output:/home/jovyan/work/data/output
+  #     - ./reports:/home/jovyan/work/reports
+  #   depends_on:
+  #     - mysql
+  #   # networks:
+  #   #   - spark_network
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql_container
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpw
+    volumes:
+      # Mount the SQL scripts to the container
+      - ./mysql/sql:/docker-entrypoint-initdb.d
+      # Persist data
+      - ./data/output/mysql_data:/var/lib/mysql
+    # networks:
+    #   - spark_network
+
+# networks:
+#   spark_network:
+#     driver: bridge
