@@ -160,8 +160,9 @@ select * from order_table;
     * Product Name: allow spaces
 
 ## Todo
-* Leverage cloud platform such as S3 for placing input data
+* Leverage cloud platform such as S3 for placing input data, and automize with Airflow
 * Simulate large amount of data and seek for high efficiency
+* Deploy spark application with Docker, including master and worker nodes
 
 ## Reference
 1. Wang, Y., & Zhang, Y. (2017). A Design of ETL Pipeline for Data Warehouse. In *2017 7th International Workshop on Computer Science and Engineering* (pp. 41-45). IEEE. [Link](http://www.wcse.org/WCSE_2017/041.pdf)
