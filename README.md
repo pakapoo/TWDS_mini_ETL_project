@@ -12,10 +12,10 @@ We are implementing a small system for (row-wise) wrangling of text data. The ty
 ## Setup
 1. Clone the repo to your desktop.
 2. Place the input csv file(s) in `data/input`. There are already one available. Feel free to put additional csv files or modify the existing one.
-3. For data quality checking, configure input schema in `config/input_schema`. The application will check the real data against the regular expression provided for each column.
+3. For data quality checking, configure input schema in `spark/config/input_schema.yaml`. The application will check the real data against the regular expression provided for each column.
 * column: the column name
 * format: regular expression for the expected value
-4. Configure external DSL for the transformation steps in `config/transform_rules.yaml`. There are several rules (rule_type) available now:
+4. Configure external DSL for the transformation steps in `spark/config/transform_rules.yaml`. There are several rules (rule_type) available now:
 
     #### Create column: each output column has to be configured exactly once
     * rename: create column from renaming a column
@@ -60,35 +60,42 @@ We are implementing a small system for (row-wise) wrangling of text data. The ty
     * pad_zero: pad zeros with the given length
         * column: column (String)
         * length: length
-    ```yaml
-    # pad zeros for Month, e.g. 6 -> 06
-    - rule_type: pad_zero
-      column: "Month"
-      length: 2
-    ```
+        ```yaml
+        # pad zeros for Month, e.g. 6 -> 06
+        - rule_type: pad_zero
+          column: "Month"
+          length: 2
+        ```
     * format_number: format a numeric column
         * column: column
         * format: [Spark SQL - Number Pattern](https://spark.apache.org/docs/3.3.1/sql-ref-number-pattern.html)
-    ```yaml
-    # format String column with numeric expression
-    - rule_type: format_number
-      column: "Count"
-      format: "9,990.09"
-    ```
+        ```yaml
+        # format String column with numeric expression
+        - rule_type: format_number
+          column: "Count"
+          format: "9,990.09"
+        ```
 
     #### Dataframe operations
     * keep
         * columns: list of columns to be kept
-    ```yaml
-    # Keep only our 6 reference columns
-    - rule_type: keep
-      columns: ["OrderID", "OrderDate", "ProductId", "ProductName", "Quantity", "Unit"]
-    ```
+        ```yaml
+        # Keep only our 6 reference columns
+        - rule_type: keep
+          columns: ["OrderID", "OrderDate", "ProductId", "ProductName", "Quantity", "Unit"]
+        ```
+
+Note: All Python path reference and MySQL database configuration can be done in `spark/config/config.ini`. It is not necessary to modify, but you may.
 
 ## Installation
 Run the below command(s) to start a Python environment and MySQL database. The -d parameter will allow the application to run in the background (detach mode) of the same session.
 ```bash
-docker-compose up
+docker-compose up -d
+```
+Run the main program.
+```python
+cd <location of the repo>
+python3 spark/main.py
 ```
 
 ## Result
@@ -96,6 +103,12 @@ You may find the ETL result at `data/output` and the report for logging invalid 
 ```bash
 docker exec -it mysql_container sh
 mysql -h 127.0.0.1 -u root -p
+```
+check the result in MySQL
+```bash
+use order_db;
+describe order_table;
+select * from order_table;
 ```
 
 ## Data Schema
